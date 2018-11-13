@@ -1,0 +1,3 @@
+asdasd      5555
+globals     2222
+enumerate   1111

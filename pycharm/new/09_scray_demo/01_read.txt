@@ -1,0 +1,81 @@
+pip install scrapy
+pip install pypiwin32  window上
+
+Scrapy Engine（引擎）：Scrapy框架的核心部分。负责在Spider和ItemPipeline、Downloader、Scheduler中间通信、传递数据等。
+Spider（爬虫）：发送需要爬取的链接给引擎，最后引擎把其他模块请求回来的数据再发送给爬虫，爬虫就去解析想要的数据。这个部分是我们开发者自己写的，因为要爬取哪些链接，页面中的哪些数据是我们需要的，都是由程序员自己决定。
+Scheduler（调度器）：负责接收引擎发送过来的请求，并按照一定的方式进行排列和整理，负责调度请求的顺序等。
+Downloader（下载器）：负责接收引擎传过来的下载请求，然后去网络上下载对应的数据再交还给引擎。
+Item Pipeline（管道）：负责将Spider（爬虫）传递过来的数据进行保存。具体保存在哪里，应该看开发者自己的需求。
+Downloader Middlewares（下载中间件）：可以扩展下载器和引擎之间通信功能的中间件。
+Spider Middlewares（Spider中间件）：可以扩展引擎和爬虫之间通信功能的中间件。
+
+scrapy startproject project 创建工程
+scrapy genspider name url 创建爬虫
+
+scrapy crawl name 执行爬虫name = genspider 的name
+
+ROBOTSTXT_OBEY = True 改为False
+
+pipelines
+	使用pipelines取消setting.py 使用ITEM_PIPELINES
+	例如
+	#ITEM_PIPELINES = {
+	#   'qsbk.pipelines.QsbkPipeline': 300,
+	#}
+	def open_spider(self, spider):开始
+	def close_spider(self, spider):结束
+	def process_item(self, item, spider): item 传进来数据 yield传出 或 return 全部数据 
+	
+items定好模型
+	yield传出
+	例如:item = QsbkItem(author=author, content=content)
+		yield item
+
+JsonItemExporter ：消耗IO少 速度快 内存消耗多
+	start_exporting() 开始加载内存
+	export_item 数据存到内存 
+	finish_exporting()内存写到磁盘
+	from scrapy.exporters import JsonItemExporter
+
+	class QsbkPipeline(object):
+		def __init__(self):
+			self.fp = open('duanzi.json', 'wb')
+			self.exporter = JsonItemExporter(self.fp, ensure_ascii = False, encoding = 'utf-8')
+			self.exporter.start_exporting()
+
+
+		def open_spider(self, spider):
+			print('爬虫开始')
+
+		def close_spider(self, spider):
+			self.exporter.finish_exporting()
+			self.fp.close()
+			print('爬虫结束')
+
+		def process_item(self, item, spider):
+			self.exporter.export_item(item)
+
+			return item
+
+JsonLinesItemExporter 消耗IO多 速度一般 内存消耗少
+	export_item 数据存到磁盘
+	from scrapy.exporters import  JsonLinesItemExporter
+
+	class QsbkPipeline(object):
+		def __init__(self):
+			self.fp = open('duanzi.json', 'wb')
+			self.exporter = JsonLinesItemExporter(self.fp, ensure_ascii = False, encoding = 'utf-8')
+
+
+		def open_spider(self, spider):
+			print('爬虫开始')
+
+		def close_spider(self, spider):
+			self.fp.close()
+			print('爬虫结束')
+
+		def process_item(self, item, spider):
+			self.exporter.export_item(item)
+
+			return item
+note open('zz.json', 'wb') b二进制 JsonItemExporter	 JsonLinesItemExporter	底层以二进制写入	

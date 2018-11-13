@@ -1,0 +1,25 @@
+scrapy genspider -c crawl [爬虫名字] [域名]
+
+LinkExtractors链接提取器：
+class scrapy.linkextractors.LinkExtractor(
+    allow = (),	允许的url。所有满足这个正则表达式的url都会被提取。
+    deny = (),	禁止的url。所有满足这个正则表达式的url都不会被提取。
+    allow_domains = (),	允许的域名。只有在这个里面指定的域名的url才会被提取。
+    deny_domains = (),	禁止的域名。所有在这个里面指定的域名的url都不会被提取。
+    deny_extensions = None,	
+    restrict_xpaths = (),	严格的xpath。和allow共同过滤链接。
+    tags = ('a','area'),
+    attrs = ('href'),
+    canonicalize = True,
+    unique = True,
+    process_value = None
+)
+Rule规则类
+class scrapy.spiders.Rule(
+    link_extractor,	：一个LinkExtractor对象，用于定义爬取规则。
+    callback = None, 	满足这个规则的url，应该要执行哪个回调函数。因为CrawlSpider使用了parse作为回调函数，因此不要覆盖parse作为回调函数自己的回调函数。
+    cb_kwargs = None, 
+    follow = None, 		指定根据该规则从response中提取的链接是否需要跟进
+    process_links = None, 从link_extractor中获取到链接后会传递给这个函数，用来过滤不需要爬取的链接。
+    process_request = None
+)
