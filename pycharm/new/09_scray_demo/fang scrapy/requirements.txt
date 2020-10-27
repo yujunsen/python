@@ -6,7 +6,7 @@ certifi==2018.8.13
 cffi==1.11.5
 chardet==3.0.4
 constantly==15.1.0
-cryptography==2.3
+cryptography==3.2
 cssselect==1.0.3
 dukpy==0.2.0
 future==0.16.0
